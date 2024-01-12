@@ -1,0 +1,8 @@
+# bin folders, can easily recompile
+bin
+
+# server logs
+ChatApplication_Server/*_log.txt
+
+# eclipse workspace stuff
+.metadata
