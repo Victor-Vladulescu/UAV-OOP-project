@@ -24,11 +24,11 @@ class InputHandler implements Runnable {
 					
 					// tell server you quit and close client
 					if (message.equals("/quit")) {
-						client.sendMessage("/quit");
+						client.sendMessage("4");
 						break;
 					}
 					else {
-						client.sendMessage(message);
+						client.sendMessage(String.format("1>8^(%s", message));
 					}
 				}
 			}

@@ -24,16 +24,22 @@ class ConnectionHandler implements Runnable {
 				out = new PrintWriter(client.getOutputStream(), true);
 				in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 				
+				String clientInput;
+				String[] message;
+				
 				// user tries to enter nickname, make sure it's not already used
 				out.println("100>8^(Hello. Please enter a nickname:");
-				nickname = in.readLine();
+				clientInput = in.readLine();
+				message = clientInput.split(Pattern.quote(">8^("), 2);
 				
 				while (true) {
 					if (server.nicknames.contains(nickname)) {
 						out.println("99>8^(This name is already in use, try another:");
-						nickname = in.readLine();
+						clientInput = in.readLine();
+						message = clientInput.split(Pattern.quote(">8^("), 2);
 					}
 					else {
+						nickname = message[1];
 						server.nicknames.add(nickname);
 						break;
 					}
@@ -46,7 +52,7 @@ class ConnectionHandler implements Runnable {
 				// log and broadcast
 				server.broadcast(String.format("5>8^(%s>8^(%s", time, nickname));
 				
-				String clientInput;
+				
 				
 				while (true) {
 					
@@ -57,7 +63,7 @@ class ConnectionHandler implements Runnable {
 					
 					
 					time = server.timeFormat.format(new Timestamp(System.currentTimeMillis()));
-					String[] message = clientInput.split(Pattern.quote(">8^("), 3);
+					message = clientInput.split(Pattern.quote(">8^("), 3);
 					
 					
 					switch (Integer.parseInt(message[0])) {
@@ -88,6 +94,8 @@ class ConnectionHandler implements Runnable {
 							
 						// whisper
 						case 3:
+							
+							// TODO implement
 							break;
 							
 						// client quits

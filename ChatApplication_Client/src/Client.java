@@ -3,6 +3,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class Client {
 	
@@ -23,18 +24,64 @@ public class Client {
 			Thread t = new Thread(inHandler);
 			t.start();
 			
-			String serverMessage;
-			while ((serverMessage = in.readLine()) != null) {
+			String serverInput;
+			while ((serverInput = in.readLine()) != null) {
 				
-				// server shutdown, close client
-				if (serverMessage.equals("/shutdown")) {
-					System.out.println("Server shut down, closing client...");
-					shutdown();
-					break;
-				}
-				// regular message
-				else {
-					System.out.println(serverMessage);	
+				
+				String[] message = serverInput.split(Pattern.quote(">8^("), 4);
+				
+				
+				switch (Integer.parseInt(message[0])) {
+					
+					// broadcast message
+					case 0:
+						System.out.println(String.format("[%s] (%s) %s", message[1], message[2], message[3]));
+						break;
+						
+					// whisper received
+					case 1:
+						// TODO implement
+						break;
+	
+					// the administrator sent a message to everyone
+					case 2:
+						System.out.println(String.format("[%s - Admin] %s", message[1], message[2]));
+						break;
+					
+					
+					// user changed their nickname
+					case 3:
+						System.out.println(String.format("[%s] (%s) renamed themselves to (%s)", message[1], message[2], message[3]));
+						break;
+					
+					// server shut down
+					case 4:
+						System.out.println(String.format("[%s] Server shut down, closing client...", message[1]));
+						shutdown();
+						break;
+						
+					// new user joined
+					case 5:
+						System.out.println(String.format("[%s] (%s) joined the chat!", message[1], message[2]));
+						break;
+						
+					// user just quit
+					case 6:
+						System.out.println(String.format("[%s] (%s) just quit.", message[1], message[2]));
+						break;
+						
+					// error
+					case 99:
+						System.out.println(String.format("ERROR: %s", message[1]));
+						break;
+						
+					// general message from server
+					case 100:
+						System.out.println(message[1]);
+						break;
+						
+					default:
+						throw new Exception("Unknown operation code. [" + message[0] + "]");
 				}
 			}
 		}
