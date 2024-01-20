@@ -1,29 +1,26 @@
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
+
+// reads keyboard input from the user after a connection to the server is established
 class InputHandler implements Runnable {
 
 		private Client client;
-		private BufferedReader inReader;
+		private BufferedReader keyIn;
 		
-		public InputHandler(Client client) {
+		public InputHandler(Client client, BufferedReader keyIn) {
 			this.client = client;
+			this.keyIn = keyIn;
 		}
 	
 		@Override
 		public void run() {
 			try {
-				inReader = new BufferedReader(new InputStreamReader(System.in));
-				
 				String message;
-				while (true) {
-					
-					try {
-						message = inReader.readLine();
-					}
-					catch (Exception e) {
-						break;
-					}
+				
+				while ((message = keyIn.readLine()) != null) {
 					
 					// tell server you quit and close client
 					if (message.equals("/quit")) {
@@ -40,17 +37,17 @@ class InputHandler implements Runnable {
 			}
 		}
 		
-		public void closeConnection() {
+		public void stopReading() {
 			try {
+				// TODO
+				// tell the stupid BufferedReader that it's supposed to STOP reading the line
+				// keyIn.close();
 				
-				if (inReader != null) {
-					inReader.close();
-				}
+				// just kill the entire program then
+				System.exit(0);
 				
-				
-			}
-			catch (Exception e) {
-				// cannot handle, ignore
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}

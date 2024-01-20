@@ -9,18 +9,17 @@ public class Client {
 	private Socket clientSocket;
 	private BufferedReader in;
 	private PrintWriter out;
-	private Scanner keyIn;
+	private InputHandler inHandler;
 	
-	public Client(String address, int port, Scanner keyIn) {
+	public Client(String address, int port, BufferedReader keyIn) {
 		
 		try {
 			clientSocket = new Socket(address, port);
 			
-			this.keyIn = keyIn;
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
-			InputHandler inHandler = new InputHandler(this);
+			inHandler = new InputHandler(this, keyIn);
 			Thread t = new Thread(inHandler);
 			t.start();
 			
@@ -30,7 +29,6 @@ public class Client {
 				// server shutdown, close client
 				if (serverMessage.equals("/shutdown")) {
 					System.out.println("Server shut down, closing client...");
-					inHandler.closeConnection();
 					shutdown();
 					break;
 				}
@@ -56,6 +54,8 @@ public class Client {
 				clientSocket.close();
 			}
 			
+			inHandler.stopReading();
+			
 			if (in != null) {
 				in.close();
 			}
@@ -63,8 +63,6 @@ public class Client {
 			if (out != null) {
 				out.close();
 			}
-			
-			keyIn.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -73,7 +71,7 @@ public class Client {
 	
 	public static void main(String[] args) {
 		
-		Scanner keyIn = new Scanner(System.in);
+		BufferedReader keyIn = new BufferedReader(new InputStreamReader(System.in));
 		
 		// ask for server address and port
 		String address;
@@ -81,20 +79,24 @@ public class Client {
 		
 		try {
 			System.out.println("Address for server:");
-			address = keyIn.nextLine();
+			address = keyIn.readLine();
 			
 			System.out.println("Port number:");
-			port = keyIn.nextInt();
+			port = Integer.parseInt(keyIn.readLine());
 		}
 		catch (Exception e) {
 			System.out.println("Invalid input.");
 			System.out.print(e.getMessage());
-			keyIn.close();
 			return;
 		}
 		
-		// why does Scanner.close() shut off the System.in stream as well?
-		//keyIn.close();
 		new Client(address, port, keyIn);
+		
+		try {
+			keyIn.close();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
