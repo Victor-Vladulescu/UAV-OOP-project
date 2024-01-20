@@ -25,9 +25,17 @@ public class Client {
 			String serverMessage;
 			while ((serverMessage = in.readLine()) != null) {
 				
-				// TODO close when server has shutdown
-				// should it be a special message, or could you just check if the socket is closed?
-				System.out.println(serverMessage);
+				// server shutdown, close client
+				if (serverMessage.equals("/shutdown")) {
+					System.out.println("Server shut down, closing client...");
+					inHandler.closeConnection();
+					shutdown();
+					break;
+				}
+				// regular message
+				else {
+					System.out.println(serverMessage);	
+				}
 			}
 		}
 		catch (Exception e) {
@@ -40,23 +48,24 @@ public class Client {
 	}
 	
 	public void shutdown() {
+		
 		try {
 			if (!clientSocket.isClosed()) {
 				clientSocket.close();
 			}
 			
-			if (in != null)
+			if (in != null) {
 				in.close();
+			}
 			
-			if (out != null)
+			if (out != null) {
 				out.close();
+			}
 		}
 		catch (Exception e) {
-			// ignore
+			e.printStackTrace();
 		}
 	}
-	
-	
 	
 	public static void main(String[] args) {
 		

@@ -88,8 +88,8 @@ public class Server {
 				server.close();
 			}
 			
-			// TODO tell others you're shutting down
-			
+			// tell others you're shutting down
+			broadcast("/shutdown");
 			
 			
 			// close all connections

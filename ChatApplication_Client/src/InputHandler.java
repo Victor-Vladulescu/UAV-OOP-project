@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 class InputHandler implements Runnable {
 
 		private Client client;
+		private BufferedReader inReader;
 		
 		public InputHandler(Client client) {
 			this.client = client;
@@ -12,16 +13,21 @@ class InputHandler implements Runnable {
 		@Override
 		public void run() {
 			try {
-				BufferedReader inReader = new BufferedReader(new InputStreamReader(System.in));
+				inReader = new BufferedReader(new InputStreamReader(System.in));
 				
 				String message;
 				while (true) {
-					message = inReader.readLine();
-				
+					
+					try {
+						message = inReader.readLine();
+					}
+					catch (Exception e) {
+						break;
+					}
+					
 					// tell server you quit and close client
 					if (message.equals("/quit")) {
 						client.sendMessage("/quit");
-						client.shutdown();
 						break;
 					}
 					else {
@@ -30,7 +36,21 @@ class InputHandler implements Runnable {
 				}
 			}
 			catch (Exception e) {
-				client.shutdown();
+				e.printStackTrace();
+			}
+		}
+		
+		public void closeConnection() {
+			try {
+				
+				if (inReader != null) {
+					inReader.close();
+				}
+				
+				
+			}
+			catch (Exception e) {
+				// cannot handle, ignore
 			}
 		}
 	}
