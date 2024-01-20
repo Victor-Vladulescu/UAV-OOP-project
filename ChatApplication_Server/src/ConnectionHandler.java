@@ -3,6 +3,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.Timestamp;
+import java.util.regex.Pattern;
 
 class ConnectionHandler implements Runnable {
 		
@@ -22,51 +23,86 @@ class ConnectionHandler implements Runnable {
 			try {
 				out = new PrintWriter(client.getOutputStream(), true);
 				in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-				out.println("Hello. Please enter a nickname: ");
+				
+				// user tries to enter nickname, make sure it's not already used
+				out.println("100>8^(Hello. Please enter a nickname:");
 				nickname = in.readLine();
+				
+				while (true) {
+					if (server.nicknames.contains(nickname)) {
+						out.println("99>8^(This name is already in use, try another:");
+						nickname = in.readLine();
+					}
+					else {
+						server.nicknames.add(nickname);
+						break;
+					}
+				}
+				
 				
 				// get formatted time stamp
 				String time = server.timeFormat.format(new Timestamp(System.currentTimeMillis()));
 				
 				// log and broadcast
-				server.broadcast(String.format("[%s] (%s) joined the chat!", time, nickname));
+				server.broadcast(String.format("5>8^(%s>8^(%s", time, nickname));
 				
-				String message;
+				String clientInput;
+				
 				while (true) {
 					
 					try {
-						message = in.readLine();	// will get an exception after being interrupted
+						clientInput= in.readLine();	// will get an exception after being interrupted
 					}
 					catch (Exception e) { break; }
-						
-					time = server.timeFormat.format(new Timestamp(System.currentTimeMillis()));
 					
-					// change nickname
-					if (message.startsWith("/nick ")) {
-						String[] messageSplit = message.split(" ", 2);
+					
+					time = server.timeFormat.format(new Timestamp(System.currentTimeMillis()));
+					String[] message = clientInput.split(Pattern.quote(">8^("), 3);
+					
+					
+					switch (Integer.parseInt(message[0])) {
+					
+						// broadcast message
+						case 1:	
+							server.broadcast(String.format("0>8^(%s>8^(%s>8^(%s", time, nickname, message[1]));
+							break;
 						
-						// TODO make sure no two users can have the same nickname at the same time!
-						
-						if (messageSplit.length == 2) {
-							server.broadcast(String.format("[%s] (%s) renamed themselves to (%s)", time, nickname, messageSplit[1]));
-							nickname = messageSplit[1];
-							out.println("Successfully changed nickname to " + nickname);
-						}
-						else {
-							out.println("No nickname provided");
-						}
-					}
-					// user quit
-					else if (message.equals("/quit")) {
-						server.broadcast(String.format("[%s] (%s) left the chat", time, nickname));
-						closeConnection();
-					}
-					// user sent a message
-					else {
-						server.broadcast(String.format("[%s] (%s) %s", time, nickname, message));
+						// user wants to change their nickname
+						case 2:
+	
+							// was a nickname supplied?
+							if (message[1].isBlank()) {
+								out.println("100>8^(Desired nickname is invalid");
+							}
+							
+							// nickname already in use?
+							if (server.nicknames.contains(message[1])) {
+								out.println("100>8^(Nickname already in use, try another");
+							}
+							
+							server.broadcast(String.format("3>8^(%s>8^(%s>8^(%s", time, nickname, message[1]));
+							server.nicknames.remove(nickname);
+							server.nicknames.add(message[1]);
+							nickname = message[1];
+							break;
+							
+						// whisper
+						case 3:
+							break;
+							
+						// client quits
+						case 4:
+							server.broadcast(String.format("6>8^(%s>8^(%s", time, nickname));
+							closeConnection();
+							break;
+							
+						default:
+							throw new Exception("Operation code unknown [" + message[0] + "]");
 					}
 				}
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
+				e.printStackTrace();
 				closeConnection();
 			}
 		}

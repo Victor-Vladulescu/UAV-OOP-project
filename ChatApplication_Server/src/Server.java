@@ -3,6 +3,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -20,8 +21,9 @@ public class Server {
     private Commander commander;
     private Thread commanderThread;
     
-    
-	public Server() {
+    public ArrayList<String> nicknames;
+	
+    public Server() {
 		
 		// make log file
 		try {
@@ -44,6 +46,9 @@ public class Server {
 		commanderThread = new Thread(commander);
 		commanderThread.start();
 		
+		// create list of nicknames
+		nicknames = new ArrayList<String>();
+		
 		// keep accepting connections until commander says otherwise
 		try {
 			server = new ServerSocket(9999);
@@ -61,15 +66,15 @@ public class Server {
 	
 	public void broadcast(String message) {
 		
-		if (!message.equals("/shutdown"))
-			log(message);
-		
 		for (ConnectionHandler ch : connections.keySet()) {
 			ch.sendMessage(message);
 		}
 	}
 	
-	private void log(String message) {
+	public void log(String message) {
+		
+		// TODO
+		// log most commands
 		
 		System.out.println(message);
 		
@@ -88,10 +93,6 @@ public class Server {
 			if (!server.isClosed()) {
 				server.close();
 			}
-			
-			// tell others you're shutting down
-			broadcast("/shutdown");
-			
 			
 			// close all connections
 			for (ConnectionHandler ch : connections.keySet()) {

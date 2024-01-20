@@ -24,16 +24,18 @@ class Commander implements Runnable {
 					
 					// close server
 					if (command.equals("/shutdown")) {
+						server.broadcast(String.format("4>8^(%s", server.timeFormat.format(timestamp)));
 						server.shutdownServer();
 						break;
 					}
 					
 					// the administrator has something to say
 					else if (command.startsWith("/say")) {
-						String[] messageSplit = command.split(" ", 2);
 						
-						if (messageSplit.length == 2) {
-							server.broadcast(String.format("[%s - Admin] %s", server.timeFormat.format(timestamp), messageSplit[1]));
+						String[] message = command.split(" ", 2);
+						
+						if (message.length == 2) {
+							server.broadcast(String.format("2>8^(%s>8^(%s", server.timeFormat.format(timestamp), message[1]));
 						}
 						else {
 							System.out.println("Your message is empty.");
