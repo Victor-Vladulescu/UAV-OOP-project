@@ -9,12 +9,14 @@ public class Client {
 	private Socket clientSocket;
 	private BufferedReader in;
 	private PrintWriter out;
+	private Scanner keyIn;
 	
-	public Client(String address, int port) {
+	public Client(String address, int port, Scanner keyIn) {
 		
 		try {
 			clientSocket = new Socket(address, port);
 			
+			this.keyIn = keyIn;
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
 			in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			
@@ -61,6 +63,8 @@ public class Client {
 			if (out != null) {
 				out.close();
 			}
+			
+			keyIn.close();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -91,6 +95,6 @@ public class Client {
 		
 		// why does Scanner.close() shut off the System.in stream as well?
 		//keyIn.close();
-		new Client(address, port);
+		new Client(address, port, keyIn);
 	}
 }

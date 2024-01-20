@@ -25,18 +25,17 @@ class ConnectionHandler implements Runnable {
 				out.println("Hello. Please enter a nickname: ");
 				nickname = in.readLine();
 				
-				// get formatted timestamp
+				// get formatted time stamp
 				String time = server.timeFormat.format(new Timestamp(System.currentTimeMillis()));
 				
 				// log and broadcast
-				server.log(String.format("[%s] %s: joined the chat!", time, nickname), true);
-				server.broadcast(String.format("[%s] %s: joined the chat!", time, nickname));
+				server.broadcast(String.format("[%s] (%s) joined the chat!", time, nickname));
 				
 				String message;
 				while (true) {
 					
 					try {
-						message = in.readLine();	// will get an exeption after being interrupted
+						message = in.readLine();	// will get an exception after being interrupted
 					}
 					catch (Exception e) { break; }
 						
@@ -45,9 +44,11 @@ class ConnectionHandler implements Runnable {
 					// change nickname
 					if (message.startsWith("/nick ")) {
 						String[] messageSplit = message.split(" ", 2);
+						
+						// TODO make sure no two users can have the same nickname at the same time!
+						
 						if (messageSplit.length == 2) {
-							server.broadcast(nickname + " renamed themselves to " + messageSplit[1]);
-							System.out.println(nickname + " renamed themselves to " + messageSplit[1]);
+							server.broadcast(String.format("[%s] (%s) renamed themselves to (%s)", time, nickname, messageSplit[1]));
 							nickname = messageSplit[1];
 							out.println("Successfully changed nickname to " + nickname);
 						}
@@ -57,12 +58,12 @@ class ConnectionHandler implements Runnable {
 					}
 					// user quit
 					else if (message.equals("/quit")) {
-						server.broadcast(nickname + " left the chat!");
+						server.broadcast(String.format("[%s] (%s) left the chat", time, nickname));
 						closeConnection();
 					}
 					// user sent a message
 					else {
-						server.broadcast(nickname + ": " + message);
+						server.broadcast(String.format("[%s] (%s) %s", time, nickname, message));
 					}
 				}
 			} catch (Exception e) {

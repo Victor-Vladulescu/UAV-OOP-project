@@ -27,12 +27,12 @@ class Commander implements Runnable {
 						server.shutdownServer();
 						break;
 					}
-					// admin has something to say
-					else if (command.startsWith("/say ")) {
+					
+					// the administrator has something to say
+					else if (command.startsWith("/say")) {
 						String[] messageSplit = command.split(" ", 2);
 						
 						if (messageSplit.length == 2) {
-							server.log(String.format("[%s - Admin] %s", server.timeFormat.format(timestamp), messageSplit[1]), true);
 							server.broadcast(String.format("[%s - Admin] %s", server.timeFormat.format(timestamp), messageSplit[1]));
 						}
 						else {

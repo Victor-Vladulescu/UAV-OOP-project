@@ -27,6 +27,7 @@ public class Server {
 		try {
 			String filename = dateTimeFormat.format(new Timestamp(System.currentTimeMillis())) + "_log.txt";
 			logFile = new FileWriter(filename);
+			log(String.format("[%s] Starting server", timeFormat.format(new Timestamp(System.currentTimeMillis()))));
 		}
 		catch (Exception e) {
 			System.out.println("Cannot create log file.");
@@ -56,21 +57,21 @@ public class Server {
 			}
 			
 		} catch (Exception e) {}
-		
-		System.out.println("Shutting down server");
 	}
 	
 	public void broadcast(String message) {
+		
+		if (!message.equals("/shutdown"))
+			log(message);
+		
 		for (ConnectionHandler ch : connections.keySet()) {
 			ch.sendMessage(message);
 		}
 	}
 	
-	public void log(String message, boolean print) {
+	private void log(String message) {
 		
-		if (print) {
-			System.out.println(message);
-		}
+		System.out.println(message);
 		
 		try {
 			logFile.append(message + "\n");
@@ -97,6 +98,7 @@ public class Server {
 				ch.closeConnection();
 			}
 			
+			log(String.format("[%s] Shutting down server", timeFormat.format(new Timestamp(System.currentTimeMillis()))));
 			logFile.close();
 		}
 		catch (Exception e) {
